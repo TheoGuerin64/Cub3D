@@ -60,7 +60,7 @@ SRCS_B	:=	main_bonus.c \
 SRCS_B := $(addprefix bonus/src/, $(SRCS_B))
 
 FT_SRC :=	./libft
-MLX_SRC :=	./minilibx
+MLX_SRC :=	./MLX42
 
 OBJS :=		${SRCS:.c=.o}
 OBJS_B :=		${SRCS_B:.c=.o}

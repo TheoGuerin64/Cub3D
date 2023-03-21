@@ -19,8 +19,8 @@
 # include <math.h>
 
 # include "../../libft/libft.h"
-# include "../../minilibx/include/MLX42/MLX42.h"
-# include "../../minilibx/include/MLX42/MLX42_Input.h"
+# include "../../MLX42/include/MLX42/MLX42.h"
+# include "../../MLX42/include/MLX42/MLX42_Input.h"
 
 # include "const_bonus.h"
 # include "vector_bonus.h"
