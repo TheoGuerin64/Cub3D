@@ -281,8 +281,10 @@ def coordinate(value: str) -> int:
 
 def parse_args() -> Tuple[int, int, str]:
     parser = argparse.ArgumentParser()
-    parser.add_argument("width", type=coordinate)
-    parser.add_argument("height", type=coordinate)
+    parser.add_argument("width", type=coordinate,
+                        help="The width of the map (between 3 and 100)")
+    parser.add_argument("height", type=coordinate,
+                        help="The height of the map (between 3 and 100)")
     args = parser.parse_args()
     return args.width, args.height
 

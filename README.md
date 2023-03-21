@@ -20,3 +20,9 @@ If you encounter any issues, feel free to contact me.
 ## Usage
 
 `./cub3D` or `./cub3D_bonus` followed by the path of a valid .cub map
+
+## Map bonus designer
+
+It requires python3.8 or higher and PyQt6.
+
+`python map_bonus_designer.py -h` for help.
