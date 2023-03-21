@@ -1,0 +1,6 @@
+*.o
+*.a
+cub3D
+cub3D_bonus
+leak.supp
+minilibx/build
