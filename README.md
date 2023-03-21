@@ -25,4 +25,4 @@ If you encounter any issues, feel free to contact me.
 
 It requires python3.8 or higher and PyQt6.
 
-`python map_bonus_designer.py -h` for help.
+`python3 map_bonus_designer.py -h` for help.
