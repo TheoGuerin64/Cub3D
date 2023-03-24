@@ -6,7 +6,7 @@
 /*   By: tguerin <tguerin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/13 18:19:41 by tguerin           #+#    #+#             */
-/*   Updated: 2023/03/01 22:31:39 by tguerin          ###   ########.fr       */
+/*   Updated: 2023/03/24 18:04:17 by ltruchel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@ int	main(int argc, char *argv[])
 	init_player(&app);
 	if (!create_window(&app))
 	{
+		ft_split_free(app.map);
+		ft_free_texture(app.texture);
 		ft_fprintf(2, "Error\nFailed to create window\n");
 		return (EXIT_FAILURE);
 	}

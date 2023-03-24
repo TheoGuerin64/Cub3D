@@ -6,7 +6,7 @@
 /*   By: tguerin <tguerin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/14 17:11:33 by ltruchel          #+#    #+#             */
-/*   Updated: 2023/03/21 15:24:15 by tguerin          ###   ########.fr       */
+/*   Updated: 2023/03/24 18:11:42 by ltruchel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,13 @@ char	**check_texture_name(char **scene)
 	found_texture_name = get_header_texture(scene, &nb_found);
 	if (nb_found < NB_TEXTURE + NB_COLOR)
 	{
+		ft_fprintf(2, "Header is not complete\n");
 		ft_split_free(found_texture_name);
 		return (NULL);
 	}
 	if (!check_texture_found(found_texture_name))
 	{
+		ft_fprintf(2, "Invalid texture name\n");
 		ft_split_free(found_texture_name);
 		return (NULL);
 	}

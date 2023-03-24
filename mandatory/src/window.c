@@ -6,7 +6,7 @@
 /*   By: tguerin <tguerin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/13 18:14:18 by tguerin           #+#    #+#             */
-/*   Updated: 2023/03/16 18:16:41 by tguerin          ###   ########.fr       */
+/*   Updated: 2023/03/24 18:08:41 by ltruchel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ static bool	get_textures(t_app *app)
 			|| app->texture[i].ptr->texture.width != TEXTURE_SIZE
 			|| app->texture[i].ptr->texture.height != TEXTURE_SIZE)
 		{
+			if (app->texture[i].ptr)
+				mlx_delete_xpm42(app->texture[i].ptr);
 			while (i > 0)
 			{
 				i--;
