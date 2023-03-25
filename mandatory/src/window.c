@@ -6,7 +6,7 @@
 /*   By: tguerin <tguerin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/13 18:14:18 by tguerin           #+#    #+#             */
-/*   Updated: 2023/03/24 18:08:41 by ltruchel         ###   ########.fr       */
+/*   Updated: 2023/03/25 14:17:40 by tguerin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ static void	hook(void *param)
 
 bool	create_window(t_app *app)
 {
-	app->mlx = mlx_init(WIN_WIDTH, WIN_HEIGHT, WIN_TITLE, true);
+	app->mlx = mlx_init(WIN_WIDTH, WIN_HEIGHT, WIN_TITLE, false);
 	if (!app->mlx)
 		return (false);
 	app->image = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);

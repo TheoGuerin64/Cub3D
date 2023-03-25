@@ -6,7 +6,7 @@
 /*   By: tguerin <tguerin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/13 18:14:18 by tguerin           #+#    #+#             */
-/*   Updated: 2023/03/20 16:35:15 by ltruchel         ###   ########.fr       */
+/*   Updated: 2023/03/25 14:18:08 by tguerin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,7 @@ static bool	create_images(t_app *app)
 
 bool	create_window(t_app *app)
 {
-	app->mlx = mlx_init(WIN_WIDTH, WIN_HEIGHT, WIN_TITLE, true);
+	app->mlx = mlx_init(WIN_WIDTH, WIN_HEIGHT, WIN_TITLE, false);
 	if (!app->mlx)
 	{
 		ft_putstr_fd("cub3d: failed to create window\n", 2);

@@ -6,7 +6,7 @@
 /*   By: tguerin <tguerin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/13 18:19:06 by tguerin           #+#    #+#             */
-/*   Updated: 2023/03/02 19:46:52 by tguerin          ###   ########.fr       */
+/*   Updated: 2023/03/25 14:16:17 by tguerin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,6 @@
 # define NB_TEXTURE 4
 # define NB_COLOR 2
 # define TEXTURE_SIZE 256
-
-# ifndef M_PI
-#  define M_PI 3.14159265358979323846
-# endif
 
 typedef struct s_vector
 {
