@@ -1,5 +1,4 @@
 from typing import List, Tuple, Union
-import os
 import sys
 import argparse
 from enum import Enum
@@ -28,6 +27,18 @@ class CellType(Enum):
     END = QtCore.Qt.GlobalColor.blue
 
 
+CELL_TO_CHAR = {
+    CellType.EMPTY: "0",
+    CellType.WALL: "1",
+    CellType.DOOR: "D",
+    CellType.START: "N",
+    CellType.MONSTER: "M",
+    CellType.END: "Z"
+}
+
+CHAR_TO_CELL = {v: k for k, v in CELL_TO_CHAR.items()}
+
+
 class Grid:
     def __init__(self, width: int, height: int) -> None:
         self._grid = [[] for _ in range(height)]
@@ -44,45 +55,52 @@ class Grid:
 class Cell(QtWidgets.QGraphicsRectItem):
     SIZE = 20
 
-    type = CellType.EMPTY
-    is_outside = False
-
     def __init__(self, x: int, y: int) -> None:
         super().__init__(x * self.SIZE, y * self.SIZE, self.SIZE, self.SIZE)
+        self.setBrush(QtGui.QBrush(CellType.EMPTY.value))
         self.setPen(QtGui.QPen(QtCore.Qt.GlobalColor.black))
-        self.setBrush(QtGui.QBrush(self.type.value))
+
+        self._is_outside = False
+        self.type_ = CellType.EMPTY
 
     def mousePressEvent(self, event: QtWidgets.QGraphicsSceneMouseEvent) -> None:
-        if event.button() == QtCore.Qt.MouseButton.LeftButton and self.scene().parent().dragMode() == QtWidgets.QGraphicsView.DragMode.NoDrag:
-            if self.type == CellType.START and self.scene().parent()._click_type != CellType.START:
-                self.scene().parent()._start_nb -= 1
-            elif self.type != CellType.START and self.scene().parent()._click_type == CellType.START:
-                self.scene().parent()._start_nb += 1
+        if (event.button() == QtCore.Qt.MouseButton.LeftButton and
+                self.scene().parent().dragMode() == QtWidgets.QGraphicsView.DragMode.NoDrag):
+            self.click()
 
-            if self.type == CellType.END and self.scene().parent()._click_type != CellType.END:
-                self.scene().parent()._end_nb -= 1
-            elif self.type != CellType.END and self.scene().parent()._click_type == CellType.END:
-                self.scene().parent()._end_nb += 1
+    def click(self) -> None:
+        if self.type_ == CellType.START and self.scene().parent()._click_type != CellType.START:
+            self.scene().parent()._start_nb -= 1
+        elif self.type_ != CellType.START and self.scene().parent()._click_type == CellType.START:
+            self.scene().parent()._start_nb += 1
 
-            self.type = self.scene().parent()._click_type
-            self.setBrush(QtGui.QBrush(self.type.value))
+        if self.type_ == CellType.END and self.scene().parent()._click_type != CellType.END:
+            self.scene().parent()._end_nb -= 1
+        elif self.type_ != CellType.END and self.scene().parent()._click_type == CellType.END:
+            self.scene().parent()._end_nb += 1
 
-            self.scene().parent().update_map()
+        self.type_ = self.scene().parent()._click_type
+        self.setBrush(QtGui.QBrush(self.type_.value))
 
-    def set_is_outside(self, is_outside: bool) -> None:
-        self.is_outside = is_outside
-        if self.is_outside:
-            self.setBrush(QtGui.QBrush(QtGui.QColor(self.type.value).darker()))
+    @property
+    def is_outside(self) -> bool:
+        return self._is_outside
+
+    @is_outside.setter
+    def is_outside(self, value: bool) -> None:
+        self._is_outside = value
+        if self._is_outside:
+            self.setBrush(QtGui.QBrush(QtGui.QColor(self.type_.value).darker()))
         else:
-            self.setBrush(QtGui.QBrush(self.type.value))
+            self.setBrush(QtGui.QBrush(self.type_.value))
 
 
 class Window(QtWidgets.QGraphicsView):
-    outfile = None
-
     def __init__(self, width: int, height: int) -> None:
         super().__init__()
+        self.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
         self.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+        self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.AnchorUnderMouse)
         self.setScene(QtWidgets.QGraphicsScene(self))
 
         self._zoom = 0
@@ -91,6 +109,7 @@ class Window(QtWidgets.QGraphicsView):
         self._start_nb = 0
         self._end_nb = 0
 
+        self.outfile = None
         self.grid = Grid(width, height)
         self.fill_grid()
 
@@ -127,8 +146,8 @@ class Window(QtWidgets.QGraphicsView):
         self._click_type = cell_type
 
     def fill_grid(self) -> None:
-        for x in range(self.grid.width):
-            for y in range(self.grid.height):
+        for y in range(self.grid.height):
+            for x in range(self.grid.width):
                 self.grid[y].append(Cell(x, y))
                 self.scene().addItem(self.grid[y][x])
 
@@ -144,28 +163,22 @@ class Window(QtWidgets.QGraphicsView):
             QtWidgets.QMessageBox.warning(self, "Error", "There must be exactly one end")
             return
 
-        flooded = self.flood_map()
+        flooded, found_end = self.flood_map()
         if not flooded:
             QtWidgets.QMessageBox.warning(self, "Error", "Map is not closed")
             return
 
+        if not found_end:
+            QtWidgets.QMessageBox.warning(self, "Error", "End is not reachable")
+            return
+
         save = ["" for _ in range(self.grid.height)]
-        for x in range(self.grid.width):
-            for y in range(self.grid.height):
-                if self.grid[y][x].type == CellType.START:
-                    save[y] += "N"
-                elif self.grid[y][x].type == CellType.MONSTER:
-                    save[y] += "M"
-                elif self.grid[y][x].type == CellType.WALL:
-                    save[y] += "1"
-                elif self.grid[y][x].type == CellType.DOOR:
-                    save[y] += "D"
-                elif self.grid[y][x].type == CellType.END:
-                    save[y] += "Z"
-                elif flooded[y][x]:
-                    save[y] += "0"
-                else:
+        for y in range(self.grid.height):
+            for x in range(self.grid.width):
+                if self.grid[y][x].type_ == CellType.EMPTY and not flooded[y][x]:
                     save[y] += " "
+                else:
+                    save[y] += CELL_TO_CHAR[self.grid[y][x].type_]
 
         while self.is_empty_line(save[0]):
             save.pop(0)
@@ -185,14 +198,20 @@ class Window(QtWidgets.QGraphicsView):
         with open(self.outfile, "w") as file:
             file.write(MAP_HEADER + "\n".join(save) + "\n")
 
-    def flood_map(self) -> Union[List[List[bool]], None]:
+    def flood_map(self) -> Tuple[Union[List[List[bool]], None], bool]:
         bactrack = [[False for _ in range(self.grid.width)] for _ in range(self.grid.height)]
         queue = deque([self.get_start()])
+
+        found_end = False
         while queue:
             x, y = queue.popleft()
             if x < 0 or x >= self.grid.width or y < 0 or y >= self.grid.height:
-                return False
-            if bactrack[y][x] or self.grid[y][x].type == CellType.WALL or self.grid[y][x].type == CellType.END:
+                return False, False
+            if self.grid[y][x].type_ == CellType.END:
+                found_end = True
+                bactrack[y][x] = True
+                continue
+            if bactrack[y][x] or self.grid[y][x].type_ == CellType.WALL:
                 continue
 
             bactrack[y][x] = True
@@ -200,31 +219,32 @@ class Window(QtWidgets.QGraphicsView):
             queue.append((x - 1, y))
             queue.append((x, y + 1))
             queue.append((x, y - 1))
-        return bactrack
+
+        return bactrack, found_end
 
     def get_start(self) -> Union[Tuple[int, int], None]:
-        for x in range(self.grid.width):
-            for y in range(self.grid.height):
-                if self.grid[y][x].type == CellType.START:
+        for y in range(self.grid.height):
+            for x in range(self.grid.width):
+                if self.grid[y][x].type_ == CellType.START:
                     return x, y
         return None
 
     def update_map(self) -> None:
         if self._start_nb != 1:
-            for x in range(self.grid.width):
-                for y in range(self.grid.height):
-                    self.grid[y][x].set_is_outside(False)
+            for y in range(self.grid.height):
+                for x in range(self.grid.width):
+                    self.grid[y][x].is_outside = False
             return
 
-        flooded = self.flood_map()
+        flooded, _ = self.flood_map()
         if flooded:
-            for x in range(self.grid.width):
-                for y in range(self.grid.height):
-                    self.grid[y][x].set_is_outside(not flooded[y][x])
+            for y in range(self.grid.height):
+                for x in range(self.grid.width):
+                    self.grid[y][x].is_outside = not flooded[y][x]
         else:
-            for x in range(self.grid.width):
-                for y in range(self.grid.height):
-                    self.grid[y][x].set_is_outside(False)
+            for y in range(self.grid.height):
+                for x in range(self.grid.width):
+                    self.grid[y][x].is_outside = False
 
     def wheelEvent(self, event: QtGui.QWheelEvent) -> None:
         if event.angleDelta().y() > 0:
@@ -233,6 +253,9 @@ class Window(QtWidgets.QGraphicsView):
         elif self._zoom > 0:
             self.scale(0.8, 0.8)
             self._zoom -= 1
+        else:
+            self.fitInView(self.scene().sceneRect(), QtCore.Qt.AspectRatioMode.KeepAspectRatio)
+            self._zoom = 0
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         self.scale(1.25 ** self._zoom, 1.25 ** self._zoom)
@@ -242,8 +265,10 @@ class Window(QtWidgets.QGraphicsView):
             button.move(self.width() - 90, 10 + index * 30)
 
     def mouseMoveEvent(self, event: QtGui.QMouseEvent):
-        if event.buttons() == QtCore.Qt.MouseButton.RightButton:
-            if not self._drag_start:
+        if event.buttons() == QtCore.Qt.MouseButton.LeftButton:
+            self.itemAt(event.position().toPoint()).click()
+        elif event.buttons() == QtCore.Qt.MouseButton.RightButton:
+            if not self._drag_start and self._zoom > 0:
                 self._drag_start = True
                 self.setDragMode(self.DragMode.ScrollHandDrag)
                 super().mousePressEvent(
@@ -258,6 +283,8 @@ class Window(QtWidgets.QGraphicsView):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
+            self.update_map()
         if event.button() == QtCore.Qt.MouseButton.RightButton:
             if self._drag_start:
                 self._drag_start = False
@@ -279,7 +306,7 @@ def coordinate(value: str) -> int:
     return int_value
 
 
-def parse_args() -> Tuple[int, int, str]:
+def parse_args() -> Tuple[int, int]:
     parser = argparse.ArgumentParser()
     parser.add_argument("width", type=coordinate,
                         help="The width of the map (between 3 and 100)")
