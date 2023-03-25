@@ -266,7 +266,9 @@ class Window(QtWidgets.QGraphicsView):
 
     def mouseMoveEvent(self, event: QtGui.QMouseEvent):
         if event.buttons() == QtCore.Qt.MouseButton.LeftButton:
-            self.itemAt(event.position().toPoint()).click()
+            item = self.itemAt(event.position().toPoint())
+            if item is not None:
+                item.click()
         elif event.buttons() == QtCore.Qt.MouseButton.RightButton:
             if not self._drag_start and self._zoom > 0:
                 self._drag_start = True
