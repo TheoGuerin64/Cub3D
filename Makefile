@@ -67,7 +67,7 @@ OBJS_B :=		${SRCS_B:.c=.o}
 NAME :=		cub3D
 NAME_B :=		cub3D_bonus
 CC :=		clang
-CFLAGS :=	-Wall -Wextra -Werror -o2 ${DEBUG}
+CFLAGS :=	-Wall -Wextra -Werror -Ofast ${DEBUG}
 LIBS :=		-lft -L${FT_SRC} ${MLX_SRC}/build/libmlx42.a -ldl -lglfw -pthread -lm
 
 .c.o:
