@@ -1,6 +1,8 @@
 ### By [@TheoGuerin64](https://github.com/TheoGuerin64) and [@LouisTruch](https://github.com/LouisTruch)
 # Cub3D
 
+[![tguerin's 42 cub3d Score](https://badge42.vercel.app/api/v2/clij0li89016608mlca50td3t/project/3027030)](https://github.com/JaeSeoKim/badge42)
+
 The goal of this project is to create a game similar to Wolfenstein 3D using simple raycasting techniques.
 
 The graphic library used is [MLX42](https://github.com/codam-coding-college/MLX42)
